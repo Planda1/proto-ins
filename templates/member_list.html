@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block title %}Miembros{% endblock %}
+
+{% block content %}
+    <div>
+        <h1>Listado de miembros</h1>
+        <a href="/members_new" class="btn btn-primary mb-3">+ Nuevo miembro</a>
+    </div>
+    <div>
+        <table>
+            <thead>
+                <tr>
+                    <th>Nombre</th>
+                    <th>Apellido</th>
+                    <th>DNI</th>
+                    <th>Plan</th>
+                    <th>Estado</th>
+                    <th>Fecha de inicio</th>
+                    <th>Fecha de fin</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for member in members %}
+                    <tr>
+                        <td>{{ member.name }}</td>
+                        <td>{{ member.surname }}</td>
+                        <td>{{ member.dni }}</td>
+                        <td>{{ member.plan }}</td>
+                        <td>{{ member.start_date }}</td>
+                        <td>{{ member.end_date }}</td>
+                        <td>{{ member.status }}</td>
+                        <td>
+                            <a href="/members/{{ member.id }}/view" class="btn btn-sm btn-info">Ver</a>
+                            <a href="/members/{{ member.id }}/edit" class="btn btn-sm btn-warning">Editar</a>
+                            <a href="/members/{{ member.id }}/delete" class="btn btn-sm btn-danger">Eliminar</a>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock %}

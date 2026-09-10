@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block title %}Detalles del miembro{% endblock %}
+
+{% block content %}
+    <div>
+        <h1>Detalles del miembro</h1>
+        <p><strong>Nombre:</strong> {{ member.name }}</p>
+        <p><strong>Apellido:</strong> {{ member.last_name }}</p>
+        <p><strong>Email:</strong> {{ member.email }}</p>
+        <p><strong>Telefono:</strong> {{ member.phone_number }}</p>
+        <p><strong>DNI:</strong> {{ member.dni }}</p>
+        <p><strong>Plan:</strong> {{ member.plan }}</p>
+        <p><strong>Estado:</strong> {{ member.status }}</p>
+        <p><strong>Fecha de inicio:</strong> {{ member.start_date }}</p>
+        <p><strong>Fecha de fin:</strong> {{ member.end_date }}</p>
+    </div>
+    <div>
+        <a href="/members/{{ member.id }}/edit" class="btn btn-warning">Editar</a>
+        <a href="/members/{{ member.id }}/delete" class="btn btn-danger">Eliminar</a>
+        <a href="/" class="btn btn-secondary">Volver al listado</a>
+    </div>
+{% endblock %}

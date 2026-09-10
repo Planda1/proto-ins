@@ -1,4 +1,5 @@
-from fastapi import FastAPI, Depends, HTTPException
+from fastapi import FastAPI, Depends, HTTPException, Request
+from fastapi.templating import Jinja2Templates
 from contextlib import asynccontextmanager
 from typing import Optional, List
 from sqlmodel import SQLModel, Field, create_engine, Session, select, col
@@ -52,6 +53,7 @@ async def lifespan(app: FastAPI):
     yield
 
 app = FastAPI(title="Gym Membership API", lifespan=lifespan)
+templates = Jinja2Templates(directory="templates")
 
 # CREATE
 @app.post("/members/", response_model=MemberRead)
@@ -120,3 +122,150 @@ async def delete_member(member_id: int, session: Session=Depends(get_session)):
     session.delete(member)
     session.commit()
     return {"ok": True, "message": "Miembro eliminado"}
+
+#---- Jinja ENDPOINTS ----
+# Listado de Miembros
+@app.get("/")
+async def member_list(request: Request, status: Optional[str] = None, plan: Optional[str] = None, dni: Optional[str] = None, session: Session=Depends(get_session)):
+    query = select(Member)
+
+    if status:
+        query = query.where(Member.status == status)
+    if plan:
+        query = query.where(Member.plan == plan)
+    if dni:
+        query = query.where(Member.dni == dni)
+
+    members = session.exec(query)
+
+    return templates.TemplateResponse(
+        request=request,
+        name="member_list.html",
+        context={"request": request, "members": members}
+    )
+
+# Detalle de miembro
+@app.get("/members/{member_id}/view")
+async def member_detail(request: Request, member_id: int, session: Session=Depends(get_session)):
+    member = session.get(Member, member_id)
+    if not member:
+        raise HTTPException(status_code=404, detail="Miembro no encontrado")
+    
+    return templates.TemplateResponse(
+        request=request,
+        name="member_detail.html",
+        context={"request": request, "member": member}
+    )
+
+# Crear miembro
+@app.get("/members_new")
+async def member_create_get(request: Request):
+    return templates.TemplateResponse(
+        request=request,
+        name="member_form.html",
+        context={"request": request, "edit_mode": False}
+    )
+
+@app.post("/members_new")
+async def member_create_post(request: Request, session: Session=Depends(get_session)):
+    form_data = await request.form()
+    member_data = MemberCreate(
+        name=form_data.get("name"),
+        surname=form_data.get("surname"),
+        email=form_data.get("email"),
+        phone_number=form_data.get("phone_number"),
+        plan=form_data.get("plan"),
+        start_date=date.fromisoformat(form_data.get("start_date")),
+        end_date=date.fromisoformat(form_data.get("start_date")),
+        dni=form_data.get("dni")
+    )
+    member = Member.model_validate(member_data)
+    if member.plan == "mensual":
+        member.end_date = member.start_date + timedelta(days=30)
+    elif member.plan == "trimestral":
+        member.end_date = member.start_date + timedelta(days=90)
+    elif member.plan == "anual":
+        member.end_date = member.start_date + timedelta(days=365)
+    else:
+        raise HTTPException(status_code=400, detail="Plan invalido")
+    
+    if member.end_date > member.start_date:
+        session.add(member)
+        session.commit()
+        session.refresh(member)
+        return templates.TemplateResponse(
+            request=request,
+            name="member_detail.html",
+            context={"request": request, "member": member}
+        )
+    else:
+        raise HTTPException(status_code=400, detail="Fecha invalida")
+
+# Editar miembro
+@app.get("/members/{member_id}/edit")
+async def member_edit_get(request: Request, member_id: int, session: Session=Depends(get_session)):
+    member = session.get(Member, member_id)
+    if not member:
+        raise HTTPException(status_code=404, detail="Miembro no encontrado")
+    
+    return templates.TemplateResponse(
+        request=request,
+        name="member_form.html",
+        context={"request": request, "member": member, "edit_mode": True}
+    )
+
+@app.post("/members/{member_id}/edit")
+async def member_edit_post(request: Request, member_id: int, session: Session=Depends(get_session)):
+    member = session.get(Member, member_id)
+    if not member:
+        raise HTTPException(status_code=404, detail="Miembro no encontrado")
+    
+    form_data = await request.form()
+    member_data = MemberUpdate(
+        name=form_data.get("name"),
+        surname=form_data.get("surname"),
+        email=form_data.get("email"),
+        phone_number=form_data.get("phone_number"),
+        plan=form_data.get("plan"),
+        start_date=form_data.get("start_date"),
+        dni=form_data.get("dni")
+    )
+    
+    member_data_dict = member_data.model_dump(exclude_unset=True)
+    member.sqlmodel_update(member_data_dict)
+
+    if member.plan == "mensual":
+        member.end_date = member.start_date + timedelta(days=30)
+    elif member.plan == "trimestral":
+        member.end_date = member.start_date + timedelta(days=90)
+    elif member.plan == "anual":
+        member.end_date = member.start_date + timedelta(days=365)
+    else:
+        raise HTTPException(status_code=400, detail="Plan invalido")
+    
+    if member.end_date > member.start_date:
+        session.add(member)
+        session.commit()
+        session.refresh(member)
+        return templates.TemplateResponse(
+            request=request,
+            name="member_detail.html",
+            context={"request": request, "member": member}
+        )
+    else:
+        raise HTTPException(status_code=400, detail="Fecha invalida")
+
+# Eliminar miembro
+@app.post("/members/{member_id}/delete")
+async def member_delete(request: Request, member_id: int, session: Session=Depends(get_session)):
+    member = session.get(Member, member_id)
+    if not member:
+        raise HTTPException(status_code=404, detail="Miembro no encontrado")
+
+    session.delete(member)
+    session.commit()
+    return templates.TemplateResponse(
+        request=request,
+        name="member_list.html",
+        context={"request": request, "members": session.exec(select(Member))}
+    )

@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+    {% if edit_mode %}
+        <h1>Editar miembro</h1>
+    {% else %}
+        <h1>Nuevo miembro</h1>
+    {% endif %}
+
+    <form method="post" action="{% if edit_mode %}/members/{{ member.id }}/edit{% else %}/members_new{% endif %}">
+        <div class="mb-3">
+            <label for="name" class="form-label">Nombre</label>
+            <input type="text" class="form-control" id="name" name="name" value="{{ member.name if edit_mode else '' }}" required>
+        </div>
+        <div class="mb-3">
+            <label for="surname" class="form-label">Apellido</label>
+            <input type="text" class="form-control" id="surname" name="surname" value="{{ member.surname if edit_mode else '' }}" required>
+        </div>
+        <div class="mb-3">
+            <label for="email" class="form-label">Email</label>
+            <input type="email" class="form-control" id="email" name="email" value="{{ member.email if edit_mode else '' }}" required>
+        </div>
+        <div class="mb-3">
+            <label for="phone_number" class="form-label">Telefono</label>
+            <input type="text" class="form-control" id="phone_number" name="phone_number" value="{{ member.phone_number if edit_mode else '' }}" required>
+        </div>
+        <div class="mb-3">
+            <label for="dni" class="form-label">DNI</label>
+            <input type="text" class="form-control" id="dni" name="dni" value="{{ member.dni if edit_mode else '' }}" required>
+        </div>
+        <div class="mb-3">
+            <label for="plan" class="form-label">Plan</label>
+            <input type="text" class="form-control" id="plan" name="plan" value="{{ member.plan if edit_mode else '' }}" required>
+        </div>
+        <div class="mb-3">
+            <label for="start_date" class="form-label">Fecha de inicio</label>
+            <input type="date" class="form-control" id="start_date" name="start_date" value="{{ member.start_date if edit_mode else '' }}" required>
+        </div>
+        <button type="submit" class="btn btn-primary">{% if edit_mode %}Actualizar{% else %}Crear{% endif %}</button>
+        <a href="/" class="btn btn-secondary">Cancelar</a>
+    </form>
+{% endblock %}
