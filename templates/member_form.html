@@ -11,31 +11,41 @@
     <form method="post" action="{% if edit_mode %}/members/{{ member.id }}/edit{% else %}/members_new{% endif %}">
         <div class="mb-3">
             <label for="name" class="form-label">Nombre</label>
-            <input type="text" class="form-control" id="name" name="name" value="{{ member.name if edit_mode else '' }}" required>
+            <input type="text" class="form-control" id="name" name="name" value="{{ member.name if member and member.name else '' }}" required>
         </div>
         <div class="mb-3">
             <label for="surname" class="form-label">Apellido</label>
-            <input type="text" class="form-control" id="surname" name="surname" value="{{ member.surname if edit_mode else '' }}" required>
+            <input type="text" class="form-control" id="surname" name="surname" value="{{ member.surname if member and member.surname else '' }}" required>
         </div>
         <div class="mb-3">
             <label for="email" class="form-label">Email</label>
-            <input type="email" class="form-control" id="email" name="email" value="{{ member.email if edit_mode else '' }}" required>
+            <input type="email" class="form-control" id="email" name="email" value="{{ member.email if member and member.email else '' }}" required>
         </div>
         <div class="mb-3">
             <label for="phone_number" class="form-label">Telefono</label>
-            <input type="text" class="form-control" id="phone_number" name="phone_number" value="{{ member.phone_number if edit_mode else '' }}" required>
+            <input type="text" class="form-control" id="phone_number" name="phone_number" value="{{ member.phone_number if member and member.phone_number else '' }}" required>
         </div>
         <div class="mb-3">
             <label for="dni" class="form-label">DNI</label>
-            <input type="text" class="form-control" id="dni" name="dni" value="{{ member.dni if edit_mode else '' }}" required>
+            <input type="text" class="form-control" id="dni" name="dni" value="{{ member.dni if member and member.dni else '' }}" required>
         </div>
         <div class="mb-3">
             <label for="plan" class="form-label">Plan</label>
-            <input type="text" class="form-control" id="plan" name="plan" value="{{ member.plan if edit_mode else '' }}" required>
+            {% if error %}
+                <div class="alert alert-danger" role="alert">
+                    {{ error }}
+                </div>
+            {% endif %}
+            <select name="plan" id="plan" class="form-select" required>
+                <option value="">Seleccione un plan</option>
+                <option value="mensual" {% if member and member.plan == "mensual" %}selected{% endif %}>Mensual</option>
+                <option value="trimestral" {% if member and member.plan == "trimestral" %}selected{% endif %}>Trimestral</option>
+                <option value="anual" {% if member and member.plan == "anual" %}selected{% endif %}>Anual</option>
+            </select>
         </div>
         <div class="mb-3">
             <label for="start_date" class="form-label">Fecha de inicio</label>
-            <input type="date" class="form-control" id="start_date" name="start_date" value="{{ member.start_date if edit_mode else '' }}" required>
+            <input type="date" class="form-control" id="start_date" name="start_date" value="{{ member.start_date if member and member.start_date else '' }}" required>
         </div>
         <button type="submit" class="btn btn-primary">{% if edit_mode %}Actualizar{% else %}Crear{% endif %}</button>
         <a href="/" class="btn btn-secondary">Cancelar</a>

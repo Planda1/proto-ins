@@ -133,15 +133,14 @@ async def member_list(request: Request, status: Optional[str] = None, plan: Opti
         query = query.where(Member.status == status)
     if plan:
         query = query.where(Member.plan == plan)
-    if dni:
+    if dni and dni.strip() != "" and dni != "None":
         query = query.where(Member.dni == dni)
 
-    members = session.exec(query)
-
+    members = session.exec(query).all()
     return templates.TemplateResponse(
         request=request,
         name="member_list.html",
-        context={"request": request, "members": members}
+        context={"request": request, "members": members, "status": status, "plan": plan, "dni": dni}
     )
 
 # Detalle de miembro
@@ -149,7 +148,11 @@ async def member_list(request: Request, status: Optional[str] = None, plan: Opti
 async def member_detail(request: Request, member_id: int, session: Session=Depends(get_session)):
     member = session.get(Member, member_id)
     if not member:
-        raise HTTPException(status_code=404, detail="Miembro no encontrado")
+        return templates.TemplateResponse(
+                            request=request,
+                            name="member_form.html",
+                            context={"request": request, "member": member, "edit_mode": False, "error": "Miembro no encontrado"}
+                        )
     
     return templates.TemplateResponse(
         request=request,
@@ -187,7 +190,11 @@ async def member_create_post(request: Request, session: Session=Depends(get_sess
     elif member.plan == "anual":
         member.end_date = member.start_date + timedelta(days=365)
     else:
-        raise HTTPException(status_code=400, detail="Plan invalido")
+        return templates.TemplateResponse(
+                            request=request,
+                            name="member_form.html",
+                            context={"request": request, "member": member, "edit_mode": False, "error": "Plan invalido"}
+                        )
     
     if member.end_date > member.start_date:
         session.add(member)
@@ -199,14 +206,22 @@ async def member_create_post(request: Request, session: Session=Depends(get_sess
             context={"request": request, "member": member}
         )
     else:
-        raise HTTPException(status_code=400, detail="Fecha invalida")
+        return templates.TemplateResponse(
+                            request=request,
+                            name="member_form.html",
+                            context={"request": request, "member": member, "edit_mode": False, "error": "Fecha invalida"}
+                        )
 
 # Editar miembro
 @app.get("/members/{member_id}/edit")
 async def member_edit_get(request: Request, member_id: int, session: Session=Depends(get_session)):
     member = session.get(Member, member_id)
     if not member:
-        raise HTTPException(status_code=404, detail="Miembro no encontrado")
+        return templates.TemplateResponse(
+                            request=request,
+                            name="member_form.html",
+                            context={"request": request, "member": member, "edit_mode": False, "error": "Miembro no encontrado"}
+                        )
     
     return templates.TemplateResponse(
         request=request,
@@ -218,7 +233,11 @@ async def member_edit_get(request: Request, member_id: int, session: Session=Dep
 async def member_edit_post(request: Request, member_id: int, session: Session=Depends(get_session)):
     member = session.get(Member, member_id)
     if not member:
-        raise HTTPException(status_code=404, detail="Miembro no encontrado")
+        return templates.TemplateResponse(
+                    request=request,
+                    name="member_form.html",
+                    context={"request": request, "member": member, "edit_mode": False, "error": "Miembro no encontrado"}
+                )
     
     form_data = await request.form()
     member_data = MemberUpdate(
@@ -241,7 +260,11 @@ async def member_edit_post(request: Request, member_id: int, session: Session=De
     elif member.plan == "anual":
         member.end_date = member.start_date + timedelta(days=365)
     else:
-        raise HTTPException(status_code=400, detail="Plan invalido")
+        return templates.TemplateResponse(
+                    request=request,
+                    name="member_form.html",
+                    context={"request": request, "member": member, "edit_mode": True, "error": "Plan invalido"}
+                )
     
     if member.end_date > member.start_date:
         session.add(member)
@@ -253,14 +276,22 @@ async def member_edit_post(request: Request, member_id: int, session: Session=De
             context={"request": request, "member": member}
         )
     else:
-        raise HTTPException(status_code=400, detail="Fecha invalida")
+        return templates.TemplateResponse(
+            request=request,
+            name="member_form.html",
+            context={"request": request, "member": member, "edit_mode": False, "error": "Fecha invalida"}
+        )
 
 # Eliminar miembro
 @app.post("/members/{member_id}/delete")
 async def member_delete(request: Request, member_id: int, session: Session=Depends(get_session)):
     member = session.get(Member, member_id)
     if not member:
-        raise HTTPException(status_code=404, detail="Miembro no encontrado")
+        return templates.TemplateResponse(
+                    request=request,
+                    name="member_form.html",
+                    context={"request": request, "member": member, "edit_mode": False, "error": "Miembro no encontrado"}
+                )
 
     session.delete(member)
     session.commit()

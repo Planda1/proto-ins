@@ -7,8 +7,37 @@
         <h1>Listado de miembros</h1>
         <a href="/members_new" class="btn btn-primary mb-3">+ Nuevo miembro</a>
     </div>
-    <div>
-        <table>
+    <a href="/" class="btn btn-secondary mb-3">Limpiar filtro</a>
+    <form method="get" action="/" class="mb-3">
+        <div class="row">
+            <div class="col">
+                <label for="status" class="form-label">Estado</label>
+                <select name="status" id="status" class="form-select">
+                    <option value="">Todos</option>
+                    <option value="active" {% if status == "active" %}selected{% endif %}>Activo</option>
+                    <option value="inactive" {% if status == "inactive" %}selected{% endif %}>Inactivo</option>
+                </select>
+            </div>
+            <div class="col">
+                <label for="plan" class="form-label">Plan</label>
+                <select name="plan" id="plan" class="form-select">
+                    <option value="">Todos</option>
+                    <option value="mensual" {% if plan == "mensual" %}selected{% endif %}>Mensual</option>
+                    <option value="trimestral" {% if plan == "trimestral" %}selected{% endif %}>Trimestral</option>
+                    <option value="anual" {% if plan == "anual" %}selected{% endif %}>Anual</option>
+                </select>
+            </div>
+            <div class="col">
+                <label for="dni" class="form-label">DNI</label>
+                <input type="text" class="form-control" id="dni" name="dni" value="{{ dni or '' }}" placeholder="Filtrar por DNI">
+            </div>
+            <div class="col d-flex align-items-end">
+                <button type="submit" class="btn btn-primary">Filtrar</button>
+            </div>
+        </div>
+    </form>
+    <div class="table-responsive">
+        <table class="table table-striped table-hover">
             <thead>
                 <tr>
                     <th>Nombre</th>
@@ -28,13 +57,25 @@
                         <td>{{ member.surname }}</td>
                         <td>{{ member.dni }}</td>
                         <td>{{ member.plan }}</td>
+                        <td>
+                            {% if member.status == "active" %}
+                                <span class="badge bg-success">Activo</span>
+                            {% elif member.status == "inactive" %}
+                                <span class="badge bg-warning">Inactivo</span>
+                            {% else %}
+                                <span class="badge bg-danger">Vencido</span>
+                            {% endif %}
+                        </td>
                         <td>{{ member.start_date }}</td>
                         <td>{{ member.end_date }}</td>
-                        <td>{{ member.status }}</td>
                         <td>
-                            <a href="/members/{{ member.id }}/view" class="btn btn-sm btn-info">Ver</a>
-                            <a href="/members/{{ member.id }}/edit" class="btn btn-sm btn-warning">Editar</a>
-                            <a href="/members/{{ member.id }}/delete" class="btn btn-sm btn-danger">Eliminar</a>
+                            <div class="btn-group" role="group">
+                                <a href="/members/{{ member.id }}/view" class="btn btn-sm btn-info ">Ver</a>
+                                <a href="/members/{{ member.id }}/edit" class="btn btn-sm btn-warning">Editar</a>
+                                <form method="post" action="/members/{{ member.id }}/delete" style="display :inline;">
+                                    <button type="submit" class="btn btn-sm btn-danger">Eliminar</button>
+                                </form>
+                            </div>
                         </td>
                     </tr>
                 {% endfor %}

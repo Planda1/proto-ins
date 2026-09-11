@@ -17,7 +17,9 @@
     </div>
     <div>
         <a href="/members/{{ member.id }}/edit" class="btn btn-warning">Editar</a>
-        <a href="/members/{{ member.id }}/delete" class="btn btn-danger">Eliminar</a>
+        <form method="post" action="/members/{{ member.id }}/delete" style="display :inline;">
+            <button type="submit" class="btn btn-danger">Eliminar</button>
+        </form>
         <a href="/" class="btn btn-secondary">Volver al listado</a>
     </div>
 {% endblock %}
