@@ -51,34 +51,40 @@
                 </tr>
             </thead>
             <tbody>
-                {% for member in members %}
+                {% if members%}
+                    {% for member in members %}
+                        <tr>
+                            <td>{{ member.name }}</td>
+                            <td>{{ member.surname }}</td>
+                            <td>{{ member.dni }}</td>
+                            <td>{{ member.plan }}</td>
+                            <td>
+                                {% if member.status == "active" %}
+                                    <span class="badge bg-success">Activo</span>
+                                {% elif member.status == "inactive" %}
+                                    <span class="badge bg-warning">Inactivo</span>
+                                {% else %}
+                                    <span class="badge bg-danger">Vencido</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ member.start_date }}</td>
+                            <td>{{ member.end_date }}</td>
+                            <td>
+                                <div class="btn-group" role="group">
+                                    <a href="/members/{{ member.id }}/view" class="btn btn-sm btn-info ">Ver</a>
+                                    <a href="/members/{{ member.id }}/edit" class="btn btn-sm btn-warning">Editar</a>
+                                    <form method="post" action="/members/{{ member.id }}/delete" style="display :inline;">
+                                        <button type="submit" class="btn btn-sm btn-danger">Eliminar</button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                {% else %}
                     <tr>
-                        <td>{{ member.name }}</td>
-                        <td>{{ member.surname }}</td>
-                        <td>{{ member.dni }}</td>
-                        <td>{{ member.plan }}</td>
-                        <td>
-                            {% if member.status == "active" %}
-                                <span class="badge bg-success">Activo</span>
-                            {% elif member.status == "inactive" %}
-                                <span class="badge bg-warning">Inactivo</span>
-                            {% else %}
-                                <span class="badge bg-danger">Vencido</span>
-                            {% endif %}
-                        </td>
-                        <td>{{ member.start_date }}</td>
-                        <td>{{ member.end_date }}</td>
-                        <td>
-                            <div class="btn-group" role="group">
-                                <a href="/members/{{ member.id }}/view" class="btn btn-sm btn-info ">Ver</a>
-                                <a href="/members/{{ member.id }}/edit" class="btn btn-sm btn-warning">Editar</a>
-                                <form method="post" action="/members/{{ member.id }}/delete" style="display :inline;">
-                                    <button type="submit" class="btn btn-sm btn-danger">Eliminar</button>
-                                </form>
-                            </div>
-                        </td>
+                        <td colspan="8" class="text-center">No se encontraron miembros.</td>
                     </tr>
-                {% endfor %}
+                {% endif %}
             </tbody>
         </table>
     </div>
