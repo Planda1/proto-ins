@@ -47,9 +47,26 @@ def get_session():
     with Session(engine) as session:
         yield session
 
+# Actualizar estado de miembros
+def update_members_status(session: Session):
+    today = date.today()
+    expired_members = session.exec(
+        select(Member).where(Member.end_date < today, Member.status != "expired")
+    ).all()
+
+    for member in expired_members:
+        member.status = "expired"
+
+    if expired_members:
+        session.commit()
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     create_db_and_tables()
+
+    with Session(engine) as session:
+        update_members_status(session)
+
     yield
 
 app = FastAPI(title="Gym Membership API", lifespan=lifespan)
@@ -78,6 +95,9 @@ async def create_member(member_data: MemberCreate, session: Session=Depends(get_
 # READ 
 @app.get("/members/", response_model=List[MemberRead])
 async def read_members(status: Optional[str] = None, plan: Optional[str] = None, dni: Optional[str] = None,session: Session=Depends(get_session)):
+    
+    update_members_status(session)
+    
     query = select(Member)
 
     if status:
@@ -87,7 +107,7 @@ async def read_members(status: Optional[str] = None, plan: Optional[str] = None,
     if dni:
         query = query.where(Member.dni == dni)
 
-    return session.exec(query)
+    return session.exec(query).all()
 
 # READ ONE
 @app.get("/members/{member_id}", response_model=MemberRead)
@@ -127,6 +147,8 @@ async def delete_member(member_id: int, session: Session=Depends(get_session)):
 # Listado de Miembros
 @app.get("/")
 async def member_list(request: Request, status: Optional[str] = None, plan: Optional[str] = None, dni: Optional[str] = None, session: Session=Depends(get_session)):
+    update_members_status(session)
+
     query = select(Member)
 
     if status:
