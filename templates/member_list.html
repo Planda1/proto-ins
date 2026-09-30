@@ -3,11 +3,10 @@
 {% block title %}Miembros{% endblock %}
 
 {% block content %}
-    <div>
-        <h1>Listado de miembros</h1>
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h1 class="mb-0">Listado de miembros</h1>
         <a href="/members_new" class="btn btn-primary mb-3">+ Nuevo miembro</a>
     </div>
-    <a href="/" class="btn btn-secondary mb-3">Limpiar filtro</a>
     <form method="get" action="/" class="mb-3">
         <div class="row">
             <div class="col">
@@ -16,6 +15,7 @@
                     <option value="">Todos</option>
                     <option value="active" {% if status == "active" %}selected{% endif %}>Activo</option>
                     <option value="inactive" {% if status == "inactive" %}selected{% endif %}>Inactivo</option>
+                    <option value="expired" {% if status == "expired" %}selected{% endif %}>Vencido</option>
                 </select>
             </div>
             <div class="col">
@@ -31,8 +31,9 @@
                 <label for="dni" class="form-label">DNI</label>
                 <input type="text" class="form-control" id="dni" name="dni" value="{{ dni or '' }}" placeholder="Filtrar por DNI">
             </div>
-            <div class="col d-flex align-items-end">
+            <div class="col d-flex align-items-end" style="gap: 5px;">
                 <button type="submit" class="btn btn-primary">Filtrar</button>
+                <a href="/" class="btn btn-secondary">Limpiar filtro</a>
             </div>
         </div>
     </form>
@@ -51,7 +52,7 @@
                 </tr>
             </thead>
             <tbody>
-                {% if members%}
+                {% if members %}
                     {% for member in members %}
                         <tr>
                             <td>{{ member.name }}</td>
@@ -74,7 +75,7 @@
                                     <a href="/members/{{ member.id }}/view" class="btn btn-sm btn-info ">Ver</a>
                                     <a href="/members/{{ member.id }}/edit" class="btn btn-sm btn-warning">Editar</a>
                                     <form method="post" action="/members/{{ member.id }}/delete" style="display :inline;">
-                                        <button type="submit" class="btn btn-sm btn-danger">Eliminar</button>
+                                        <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Seguro?')">Eliminar</button>
                                     </form>
                                 </div>
                             </td>
