@@ -1,5 +1,6 @@
 from fastapi import FastAPI, Depends, HTTPException, Request
 from fastapi.templating import Jinja2Templates
+from fastapi.staticfiles import StaticFiles
 from contextlib import asynccontextmanager
 from typing import Optional, List
 from sqlmodel import SQLModel, Field, create_engine, Session, select, col
@@ -70,6 +71,7 @@ async def lifespan(app: FastAPI):
     yield
 
 app = FastAPI(title="Gym Membership API", lifespan=lifespan)
+app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
 
 # CREATE
