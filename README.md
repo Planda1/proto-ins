@@ -1,4 +1,4 @@
-# Proto-Ins — Sistema de Gestión de Membresías de Gimnasio
+# Sistema de Gestión de Membresías de Gimnasio
 
 ## Descripción
 
