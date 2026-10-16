@@ -78,11 +78,6 @@ a:hover {
   gap: 0.5rem;
 }
 
-.navbar-brand::before {
-  content: "🏋️";
-  font-size: 1.4rem;
-}
-
 .navbar-brand:hover {
   color: var(--primary);
 }
