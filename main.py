@@ -146,8 +146,68 @@ async def delete_member(member_id: int, session: Session=Depends(get_session)):
     return {"ok": True, "message": "Miembro eliminado"}
 
 #---- Jinja ENDPOINTS ----
-# Listado de Miembros
+
+# Dashboard
 @app.get("/")
+async def dashboard(request: Request, session: Session = Depends(get_session)):
+    update_members_status(session)
+
+    members = session.exec(select(Member)).all()
+    today = date.today()
+    in_7_days = today + timedelta(days=7)
+
+    active = [m for m in members if m.status == "active"]
+    expired = [m for m in members if m.status == "expired"]
+    expiring = [
+        m for m in members
+        if m.status == "active" and m.end_date and today <= m.end_date <= in_7_days
+    ]
+    expiring.sort(key=lambda m: m.end_date)
+
+    by_plan = {
+        "mensual": sum(1 for m in members if m.plan == "mensual"),
+        "trimestral": sum(1 for m in members if m.plan == "trimestral"),
+        "anual": sum(1 for m in members if m.plan == "anual"),
+    }
+    total_plans = max(sum(by_plan.values()), 1)
+    plan_pct = {
+        "mensual": round(by_plan["mensual"] / total_plans * 100),
+        "trimestral": round(by_plan["trimestral"] / total_plans * 100),
+        "anual": round(by_plan["anual"] / total_plans * 100),
+    }
+
+    def _sort_key(m):
+        ca = m.created_at
+        if ca is None:
+            return datetime.min
+        if ca.tzinfo is not None:
+            return ca.replace(tzinfo=None)
+        return ca
+
+    recent = sorted(members, key=_sort_key, reverse=True)[:5]
+
+    stats = {
+        "total": len(members),
+        "active": len(active),
+        "expired": len(expired),
+        "expiring_soon": len(expiring),
+        "by_plan": by_plan,
+        "plan_pct": plan_pct,
+    }
+
+    return templates.TemplateResponse(
+        request=request,
+        name="dashboard.html",
+        context={
+            "request": request,
+            "stats": stats,
+            "expiring": expiring[:8],
+            "recent": recent,
+        },
+    )
+
+# Listado de Miembros
+@app.get("/members")
 async def member_list(request: Request, status: Optional[str] = None, plan: Optional[str] = None, dni: Optional[str] = None, session: Session=Depends(get_session)):
     update_members_status(session)
 
