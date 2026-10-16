@@ -169,8 +169,22 @@ async def dashboard(request: Request, session: Session = Depends(get_session)):
         "trimestral": sum(1 for m in members if m.plan == "trimestral"),
         "anual": sum(1 for m in members if m.plan == "anual"),
     }
+    total_plans = max(sum(by_plan.values()), 1)
+    plan_pct = {
+        "mensual": round(by_plan["mensual"] / total_plans * 100),
+        "trimestral": round(by_plan["trimestral"] / total_plans * 100),
+        "anual": round(by_plan["anual"] / total_plans * 100),
+    }
 
-    recent = sorted(members, key=lambda m: m.created_at or datetime.min.replace(tzinfo=timezone.utc), reverse=True)[:5]
+    def _sort_key(m):
+        ca = m.created_at
+        if ca is None:
+            return datetime.min
+        if ca.tzinfo is not None:
+            return ca.replace(tzinfo=None)
+        return ca
+
+    recent = sorted(members, key=_sort_key, reverse=True)[:5]
 
     stats = {
         "total": len(members),
@@ -178,6 +192,7 @@ async def dashboard(request: Request, session: Session = Depends(get_session)):
         "expired": len(expired),
         "expiring_soon": len(expiring),
         "by_plan": by_plan,
+        "plan_pct": plan_pct,
     }
 
     return templates.TemplateResponse(
