@@ -78,6 +78,11 @@ a:hover {
   gap: 0.5rem;
 }
 
+.navbar-brand::before {
+  content: "🏋️";
+  font-size: 1.4rem;
+}
+
 .navbar-brand:hover {
   color: var(--primary);
 }
@@ -466,4 +471,123 @@ h4 {
 /* Inline form (for delete buttons) */
 form.inline {
   display: inline;
+}
+
+/* ---------- Dashboard ---------- */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.25rem;
+  margin-bottom: 2rem;
+}
+
+.stat-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.35rem 1.4rem;
+  box-shadow: var(--shadow);
+  transition: transform var(--transition), border-color var(--transition);
+}
+
+.stat-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--primary);
+}
+
+.stat-card .stat-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 0.4rem;
+}
+
+.stat-card .stat-value {
+  font-size: 2rem;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1.2;
+}
+
+.stat-card .stat-hint {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin-top: 0.35rem;
+}
+
+.stat-card.stat-active .stat-value { color: var(--success); }
+.stat-card.stat-expired .stat-value { color: var(--danger); }
+.stat-card.stat-soon .stat-value { color: var(--warning); }
+.stat-card.stat-total .stat-value { color: var(--primary); }
+
+.dashboard-section {
+  margin-bottom: 2rem;
+}
+
+.dashboard-section h2 {
+  font-size: 1.15rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  color: var(--text);
+}
+
+.quick-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-bottom: 2rem;
+}
+
+.plan-bars {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.plan-bar-row {
+  display: grid;
+  grid-template-columns: 100px 1fr 40px;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.plan-bar-label {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+.plan-bar-track {
+  height: 10px;
+  background: var(--bg);
+  border-radius: 999px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+
+.plan-bar-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: var(--primary);
+  transition: width 0.4s ease;
+}
+
+.plan-bar-count {
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-align: right;
+  color: var(--text);
+}
+
+.two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+}
+
+@media (max-width: 768px) {
+  .two-col {
+    grid-template-columns: 1fr;
+  }
 }

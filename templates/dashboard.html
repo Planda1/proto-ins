@@ -1,0 +1,153 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Gym System{% endblock %}
+
+{% block content %}
+    <div class="page-header">
+        <h1>Dashboard</h1>
+        <a href="/members_new" class="btn btn-primary">+ Nuevo miembro</a>
+    </div>
+
+    <div class="stats-grid">
+        <div class="stat-card stat-total">
+            <div class="stat-label">Total miembros</div>
+            <div class="stat-value">{{ stats.total }}</div>
+            <div class="stat-hint">En el sistema</div>
+        </div>
+        <div class="stat-card stat-active">
+            <div class="stat-label">Activos</div>
+            <div class="stat-value">{{ stats.active }}</div>
+            <div class="stat-hint">Membresia vigente</div>
+        </div>
+        <div class="stat-card stat-soon">
+            <div class="stat-label">Vencen pronto</div>
+            <div class="stat-value">{{ stats.expiring_soon }}</div>
+            <div class="stat-hint">Proximos 7 dias</div>
+        </div>
+        <div class="stat-card stat-expired">
+            <div class="stat-label">Vencidos</div>
+            <div class="stat-value">{{ stats.expired }}</div>
+            <div class="stat-hint">Requieren atencion</div>
+        </div>
+    </div>
+
+    <div class="quick-actions">
+        <a href="/members" class="btn btn-secondary">Ver listado completo</a>
+        <a href="/members?status=expired" class="btn btn-danger">Ver vencidos</a>
+        <a href="/members?status=active" class="btn btn-primary">Ver activos</a>
+        <a href="/members_new" class="btn btn-primary">+ Nuevo miembro</a>
+    </div>
+
+    <div class="two-col">
+        <div class="dashboard-section">
+            <h2>Distribucion por plan</h2>
+            <div class="card">
+                <div class="card-body">
+                    <div class="plan-bars">
+                        <div class="plan-bar-row">
+                            <span class="plan-bar-label">Mensual</span>
+                            <div class="plan-bar-track">
+                                <div class="plan-bar-fill" style="width: {{ stats.plan_pct.mensual }}%"></div>
+                            </div>
+                            <span class="plan-bar-count">{{ stats.by_plan.mensual }}</span>
+                        </div>
+                        <div class="plan-bar-row">
+                            <span class="plan-bar-label">Trimestral</span>
+                            <div class="plan-bar-track">
+                                <div class="plan-bar-fill" style="width: {{ stats.plan_pct.trimestral }}%"></div>
+                            </div>
+                            <span class="plan-bar-count">{{ stats.by_plan.trimestral }}</span>
+                        </div>
+                        <div class="plan-bar-row">
+                            <span class="plan-bar-label">Anual</span>
+                            <div class="plan-bar-track">
+                                <div class="plan-bar-fill" style="width: {{ stats.plan_pct.anual }}%"></div>
+                            </div>
+                            <span class="plan-bar-count">{{ stats.by_plan.anual }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="dashboard-section">
+            <h2>Proximos a vencer (7 dias)</h2>
+            <div class="table-wrapper">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Nombre</th>
+                            <th>Plan</th>
+                            <th>Vence</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if expiring %}
+                            {% for m in expiring %}
+                                <tr>
+                                    <td>{{ m.name }} {{ m.surname }}</td>
+                                    <td>{{ m.plan }}</td>
+                                    <td>{{ m.end_date }}</td>
+                                    <td>
+                                        <a href="/members/{{ m.id }}/view" class="btn btn-sm btn-info">Ver</a>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="4" class="empty">Nadie vence en los proximos 7 dias.</td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="dashboard-section">
+        <h2>Ultimos miembros agregados</h2>
+        <div class="table-wrapper">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>DNI</th>
+                        <th>Plan</th>
+                        <th>Estado</th>
+                        <th>Inicio</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if recent %}
+                        {% for m in recent %}
+                            <tr>
+                                <td>{{ m.name }} {{ m.surname }}</td>
+                                <td>{{ m.dni or '—' }}</td>
+                                <td>{{ m.plan }}</td>
+                                <td>
+                                    {% if m.status == "active" %}
+                                        <span class="badge badge-success">Activo</span>
+                                    {% elif m.status == "inactive" %}
+                                        <span class="badge badge-warning">Inactivo</span>
+                                    {% else %}
+                                        <span class="badge badge-danger">Vencido</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ m.start_date }}</td>
+                                <td>
+                                    <a href="/members/{{ m.id }}/view" class="btn btn-sm btn-info">Ver</a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="6" class="empty">No hay miembros aun.</td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock %}
