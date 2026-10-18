@@ -203,6 +203,12 @@ async def dashboard(request: Request, session: Session = Depends(get_session)):
             "stats": stats,
             "expiring": expiring[:8],
             "recent": recent,
+            "count_mensual": by_plan["mensual"],
+            "count_trimestral": by_plan["trimestral"],
+            "count_anual": by_plan["anual"],
+            "pct_mensual": plan_pct["mensual"],
+            "pct_trimestral": plan_pct["trimestral"],
+            "pct_anual": plan_pct["anual"],
         },
     )
 
