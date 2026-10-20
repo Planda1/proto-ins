@@ -106,6 +106,9 @@ a:hover {
   max-width: 1140px;
   margin: 0 auto;
   padding: 2rem 1.25rem;
+  width: 100%;
+  box-sizing: border-box;
+  overflow-x: hidden;
 }
 
 /* ---------- Typography ---------- */
@@ -435,18 +438,15 @@ h4 {
 }
 
 /* ---------- Responsive ---------- */
+@media (max-width: 900px) {
+  .two-col {
+    grid-template-columns: 1fr;
+  }
+}
+
 @media (max-width: 768px) {
-  .form-grid {
+  .two-col {
     grid-template-columns: 1fr;
-  }
-
-  .filter-row {
-    grid-template-columns: 1fr;
-  }
-
-  .page-header {
-    flex-direction: column;
-    align-items: flex-start;
   }
 
   .table-wrapper {
@@ -454,12 +454,26 @@ h4 {
   }
 
   .table {
-    min-width: 700px;
+    min-width: 520px;
   }
 
-  .navbar-inner {
-    flex-direction: column;
-    gap: 0.75rem;
+  .plan-bar-row {
+    grid-template-columns: minmax(60px, 80px) minmax(0, 1fr) 32px;
+  }
+}
+
+@media (max-width: 480px) {
+  .plan-bar-row {
+    grid-template-columns: 1fr;
+    gap: 0.3rem;
+  }
+
+  .plan-bar-count {
+    text-align: left;
+  }
+
+  .table {
+    min-width: 480px;
   }
 }
 
@@ -539,22 +553,28 @@ form.inline {
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
+  min-width: 0;
 }
 
 .plan-bar-row {
   display: grid;
-  grid-template-columns: 100px 1fr 40px;
+  grid-template-columns: minmax(70px, 90px) minmax(0, 1fr) minmax(28px, 40px);
   align-items: center;
-  gap: 0.75rem;
+  gap: 0.6rem;
+  min-width: 0;
 }
 
 .plan-bar-label {
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   color: var(--text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .plan-bar-track {
   height: 10px;
+  min-width: 0;
   background: var(--bg);
   border-radius: 999px;
   overflow: hidden;
@@ -562,7 +582,9 @@ form.inline {
 }
 
 .plan-bar-fill {
+  display: block;
   height: 100%;
+  max-width: 100%;
   border-radius: 999px;
   background: var(--primary);
   transition: width 0.4s ease;
@@ -575,14 +597,167 @@ form.inline {
   color: var(--text);
 }
 
+.dashboard-section {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.dashboard-section .card {
+  max-width: 100%;
+  overflow: hidden;
+}
+
 .two-col {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 1.5rem;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.two-col > * {
+  min-width: 0;
+  max-width: 100%;
 }
 
 @media (max-width: 768px) {
+  .container {
+    padding: 1.25rem 1rem;
+  }
+
+  h1 {
+    font-size: 1.4rem;
+  }
+
+  .navbar-inner {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+
+  .nav-links {
+    width: 100%;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+  }
+
+  .nav-link {
+    flex: 1 1 auto;
+    text-align: center;
+    padding: 0.55rem 0.75rem;
+  }
+
+  .page-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.75rem;
+  }
+
+  .page-header .btn {
+    width: 100%;
+  }
+
+  .stats-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 0.85rem;
+  }
+
+  .stat-card {
+    padding: 1rem;
+  }
+
+  .stat-card .stat-value {
+    font-size: 1.6rem;
+  }
+
   .two-col {
     grid-template-columns: 1fr;
+  }
+
+  .form-grid,
+  .filter-row {
+    grid-template-columns: 1fr;
+  }
+
+  .filter-actions {
+    flex-direction: column;
+  }
+
+  .filter-actions .btn {
+    width: 100%;
+  }
+
+  .form-actions {
+    flex-direction: column-reverse;
+  }
+
+  .form-actions .btn {
+    width: 100%;
+  }
+
+  .quick-actions {
+    flex-direction: column;
+  }
+
+  .quick-actions .btn {
+    width: 100%;
+  }
+
+  .detail-actions {
+    flex-direction: column;
+  }
+
+  .detail-actions .btn {
+    width: 100%;
+  }
+
+  .btn-group {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .btn-group .btn {
+    width: 100%;
+  }
+
+  .table-wrapper {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow-x: auto;
+    overflow-y: hidden;
+    max-width: 100%;
+    box-shadow: var(--shadow);
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+  }
+
+  .plan-bar-row {
+    grid-template-columns: 80px 1fr 36px;
+    gap: 0.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .navbar-brand {
+    font-size: 1.15rem;
+  }
+
+  .plan-bar-row {
+    grid-template-columns: 1fr;
+    gap: 0.25rem;
+  }
+
+  .plan-bar-count {
+    text-align: left;
   }
 }
