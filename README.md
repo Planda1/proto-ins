@@ -13,7 +13,7 @@ Tecnologías utilizadas:
 
 ## Requisitos previos
 
-- Python 3.10 o superior
+- Python 3.11 o superior
 - pip (o uv)
 - Base de datos SQLite (se crea automáticamente)
 
@@ -58,3 +58,26 @@ uvicorn main:app --reload
 ```
 - Interfaz web: http://127.0.0.1:8000
 - Documentacion de la API: http://127.0.0.1:8000/docs
+
+## Tabla de rutas (Endpoints)
+### Rutas de la API
+
+| URL                  | Metodo | Descripcion                                                                   |
+|----------------------|--------|-------------------------------------------------------------------------------|
+| /members/            | POST   | Crea un miembro nuevo y calcula la fecha de vencimiento segun el plan elegido |
+| /members/            | GET    | Lista todos los miembros, permite filtrar por estado, plan o DNI              |
+| /members/{member_id} | GET    | Obtiene los datos de un miembro especifico                                    |
+| /members/{member_id} | PUT    | Actualiza los datos de un miembro existente                                   |
+| /members/{member_id} | DELETE | Elimina un miembro de la base de datos                                        |
+
+### Rutas de la Web
+| URL                         | Metodo | Descripcion                                                                   |
+|-----------------------------|--------|-------------------------------------------------------------------------------|
+| /                           | GET    | Muestra el dashboard con estadisticas                                         |
+| /members                    | GET    | Muestra el listado de miembros, tambien puede filtrar por estado, plan o DNI  |
+| /members/{member_id}/view   | GET    | Muestra los detalles de un miembro                                            |
+| /members_new                | GET    | Muestra el formulario para crear un nuevo miembro                             |
+| /members_new                | POST   | Procesa el formulario y guarda el nuevo miembro                               |
+| /members/{member_id}/edit   | GET    | Muestra el formulario para editar un miembro                                  |
+| /members/{member_id}/edit   | POST   | Procesa el formulario y actualiza el miembro                                  |
+| /members/{member_id}/delete | POST   | Elimina un miembro y redirige al listado                                      |

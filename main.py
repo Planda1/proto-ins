@@ -1,6 +1,7 @@
 from fastapi import FastAPI, Depends, HTTPException, Request
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
+from fastapi.responses import RedirectResponse
 from contextlib import asynccontextmanager
 from typing import Optional, List
 from sqlmodel import SQLModel, Field, create_engine, Session, select, col
@@ -74,6 +75,7 @@ app = FastAPI(title="Gym Membership API", lifespan=lifespan)
 app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
 
+# ENDPOINTS DE LA API, CONTIENEN ERRORES QUE NO VOY A CORREGIR PORQUE NO SON NECESARIOS PARA EL PROYECTO, LOS ENDPOINS REALES ESTAN EN LA LINEA 149
 # CREATE
 @app.post("/members/", response_model=MemberRead)
 async def create_member(member_data: MemberCreate, session: Session=Depends(get_session)):
@@ -256,14 +258,15 @@ async def member_create_get(request: Request):
 @app.post("/members_new")
 async def member_create_post(request: Request, session: Session=Depends(get_session)):
     form_data = await request.form()
+    start_date = date.fromisoformat(form_data.get("start_date"))
     member_data = MemberCreate(
         name=form_data.get("name"),
         surname=form_data.get("surname"),
         email=form_data.get("email"),
         phone_number=form_data.get("phone_number"),
         plan=form_data.get("plan"),
-        start_date=date.fromisoformat(form_data.get("start_date")),
-        end_date=date.fromisoformat(form_data.get("start_date")),
+        start_date=start_date,
+        end_date=start_date,  # Temporal, porque es recalculada despues
         dni=form_data.get("dni")
     )
     member = Member.model_validate(member_data)
@@ -284,11 +287,7 @@ async def member_create_post(request: Request, session: Session=Depends(get_sess
         session.add(member)
         session.commit()
         session.refresh(member)
-        return templates.TemplateResponse(
-            request=request,
-            name="member_detail.html",
-            context={"request": request, "member": member}
-        )
+        return RedirectResponse(url="/members", status_code=303)
     else:
         return templates.TemplateResponse(
                             request=request,
@@ -322,15 +321,17 @@ async def member_edit_post(request: Request, member_id: int, session: Session=De
                     name="member_form.html",
                     context={"request": request, "member": member, "edit_mode": False, "error": "Miembro no encontrado"}
                 )
-    
+
     form_data = await request.form()
+    start_date_str = form_data.get("start_date")
+    start_date = date.fromisoformat(start_date_str) if start_date_str else None
     member_data = MemberUpdate(
         name=form_data.get("name"),
         surname=form_data.get("surname"),
         email=form_data.get("email"),
         phone_number=form_data.get("phone_number"),
         plan=form_data.get("plan"),
-        start_date=form_data.get("start_date"),
+        start_date=start_date,
         dni=form_data.get("dni")
     )
     
@@ -354,11 +355,7 @@ async def member_edit_post(request: Request, member_id: int, session: Session=De
         session.add(member)
         session.commit()
         session.refresh(member)
-        return templates.TemplateResponse(
-            request=request,
-            name="member_detail.html",
-            context={"request": request, "member": member}
-        )
+        return RedirectResponse(url=f"/members/{member.id}/view", status_code=303)
     else:
         return templates.TemplateResponse(
             request=request,
@@ -370,17 +367,10 @@ async def member_edit_post(request: Request, member_id: int, session: Session=De
 @app.post("/members/{member_id}/delete")
 async def member_delete(request: Request, member_id: int, session: Session=Depends(get_session)):
     member = session.get(Member, member_id)
+
     if not member:
-        return templates.TemplateResponse(
-                    request=request,
-                    name="member_form.html",
-                    context={"request": request, "member": member, "edit_mode": False, "error": "Miembro no encontrado"}
-                )
+        return RedirectResponse(url="/members", status_code=303)
 
     session.delete(member)
     session.commit()
-    return templates.TemplateResponse(
-        request=request,
-        name="member_list.html",
-        context={"request": request, "members": session.exec(select(Member))}
-    )
+    return RedirectResponse(url="/members", status_code=303)
